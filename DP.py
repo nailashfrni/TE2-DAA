@@ -1,83 +1,58 @@
-# Acknowledgement
-# https://www.geeksforgeeks.org/vertex-cover-problem-dynamic-programming-solution-for-tree/
+# Python3 implementation for the general tree approach
 
-class Node:
-	def __init__(self):
-		self.data = 0
-		self.vc = 0
-		self.left = None
-		self.right = None
+from tree_generator import addEdge
 
+def dfs(adj, dp, src, par):
+	for child in adj[src]:
+		if child != par:
+			dfs(adj, dp, child, src)
 
-# Driver program to test above functions
-def main():
-	# Let us construct the tree given in the above diagram
-	root = Globals.newNode(20)
-	root.left = Globals.newNode(8)
-	root.left.left = Globals.newNode(4)
-	root.left.right = Globals.newNode(12)
-	root.left.right.left = Globals.newNode(10)
-	root.left.right.right = Globals.newNode(14)
-	root.right = Globals.newNode(22)
-	root.right.right = Globals.newNode(25)
+	for child in adj[src]:
+		if child != par:
+			# not including source in the vertex cover
+			dp[src][0] = dp[child][1] + dp[src][0]
 
-	print("Size of the smallest vertex cover is ", end='')
-	print(Globals.vCover(root), end='')
-	print("\n", end='')
+			# including source in the vertex cover
+			dp[src][1] = dp[src][1] + min(dp[child][1], dp[child][0])
 
 
-class Globals:
-	# A utility function to find min of two integers
-	@staticmethod
-	def min(x, y):
-		if(x < y):
-			return x
-		else:
-			return y
+def min_vertex_cover_dp(adj, N):
+	dp = [[0 for j in range(2)] for i in range(N+1)]
+	for i in range(1, N+1):
+		# 0 denotes not included in vertex cover
+		dp[i][0] = 0
 
-	# A memoization based function that returns size of the minimum vertex cover.
+		# 1 denotes included in vertex cover
+		dp[i][1] = 1
 
-	@staticmethod
-	def vCover(root):
-		# The size of minimum vertex cover is zero if tree is empty or there
-		# is only one node
-		if root is None:
-			return 0
-		if root.left is None and root.right is None:
-			return 0
+	dfs(adj, dp, 1, -1)
 
-		# If vertex cover for this node is already evaluated, then return it
-		# to save recomputation of same subproblem again.
-		if root.vc != 0:
-			return root.vc
+	# printing minimum size vertex cover
+	return min(dp[1][0], dp[1][1])
 
-		# Calculate size of vertex cover when root is part of it
-		size_incl = 1 + Globals.vCover(root.left) + Globals.vCover(root.right)
 
-		# Calculate size of vertex cover when root is not part of it
-		size_excl = 0
-		if root.left:
-			size_excl += 1 + \
-				Globals.vCover(root.left.left) + \
-				Globals.vCover(root.left.right)
-		if root.right:
-			size_excl += 1 + \
-				Globals.vCover(root.right.left) + \
-				Globals.vCover(root.right.right)
-
-		# Minimum of two values is vertex cover, store it before returning
-		root.vc = Globals.min(size_incl, size_excl)
-
-		return root.vc
-
-	# A utility function to create a node
-	@staticmethod
-	def newNode(data):
-		temp = Node()
-		temp.data = data
-		temp.left = temp.right = None
-		temp.vc = 0 # Set the vertex cover as 0
-		return temp
-
+# Driver Code
+"""
+		1
+		/ \
+	2	 7
+	/ \
+	3 6
+/|\ 
+4 8 5
+"""
 if __name__ == '__main__':
-    main()
+	# number of nodes in the tree
+	N = 8
+
+	# adjacency list representation of the tree
+	adj = [[] for i in range(N+1)]
+	addEdge(adj, 1, 2)
+	addEdge(adj, 1, 7)
+	addEdge(adj, 2, 3)
+	addEdge(adj, 2, 6)
+	addEdge(adj, 3, 4)
+	addEdge(adj, 3, 8)
+	addEdge(adj, 3, 5)
+
+	print(min_vertex_cover_dp(adj, N))

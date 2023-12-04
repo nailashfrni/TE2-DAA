@@ -4,18 +4,9 @@
 import networkx as nx
 import os
 import argparse
-import time
 import operator
 from BnB import *
-
-# FUNCTION FOR PARSING INPUT FILES
-def parse(datafile):
-	adj_list = []
-	with open(datafile) as f:
-		num_vertices, num_edges, weighted = map(int, f.readline().split())
-		for i in range(num_vertices):
-			adj_list.append(map(int, f.readline().split()))
-	return adj_list
+from main import parse
 
 # USE THE ADJACENCY LIST TO CREATE A GRAPH
 def create_graph(adj_list):
@@ -25,12 +16,7 @@ def create_graph(adj_list):
 			G.add_edge(i + 1, j)
 	return G
 
-def BnB(G, T):
-	#RECORD START TIME
-	start_time=time.time()
-	end_time=start_time
-	delta_time=end_time-start_time
-	times=[]    #list of times when solution is found, tuple=(VC size,delta_time)
+def BnB(G):
 
 	# INITIALIZE SOLUTION VC SETS AND FRONTIER SET TO EMPTY SET
 	OptVC = []
@@ -40,7 +26,7 @@ def BnB(G, T):
 
 	# ESTABLISH INITIAL UPPER BOUND
 	UpperBound = G.number_of_nodes()
-	print('Initial UpperBound:', UpperBound)
+	# print('Initial UpperBound:', UpperBound)
 
 	CurG = G.copy()  # make a copy of G
 	# sort dictionary of degree of nodes to find node with highest degree
@@ -52,7 +38,7 @@ def BnB(G, T):
 	Frontier.append((v[0], 1, (-1, -1)))
 	# print(Frontier)
 
-	while Frontier!=[] and delta_time<T:
+	while Frontier!=[]:
 		(vi,state,parent)=Frontier.pop() #set current node to last element in Frontier
 		
 		#print('New Iteration(vi,state,parent):', vi, state, parent)
@@ -87,10 +73,9 @@ def BnB(G, T):
 			if CurVC_size < UpperBound:
 				OptVC = CurVC.copy()
 				#print('OPTIMUM:', OptVC)
-				print('Current Opt VC size', CurVC_size)
+				# print('Current Opt VC size', CurVC_size)
 				UpperBound = CurVC_size
 				#print('New VC:',OptVC)
-				times.append((CurVC_size,time.time()-start_time))
 			backtrack = True
 			#print('First backtrack-vertex-',vi)
 				
@@ -141,16 +126,11 @@ def BnB(G, T):
 				else:
 					print('error in backtracking step')
 
-		end_time=time.time()
-		delta_time=end_time-start_time
-		if delta_time>T:
-			print('Cutoff time reached')
-
-	return OptVC,times
+	return OptVC
 
 #TO FIND THE VERTEX WITH MAXIMUM DEGREE IN REMAINING GRAPH
 def find_maxdeg(g):
-	deglist = g.degree()
+	deglist = dict(g.degree())
 	deglist_sorted = sorted(deglist.items(), reverse=True, key=operator.itemgetter(
 		1))  # sort in descending order of node degree
 	v = deglist_sorted[0]  # tuple - (node,degree)
@@ -197,7 +177,7 @@ def main(inputfile, output_dir, cutoff, randSeed):
 	print('No of nodes in G:', g.number_of_nodes(),
 		  '\nNo of Edges in G:', g.number_of_edges())
 
-	Sol_VC,times = BnB(g, cutoff)
+	Sol_VC = BnB(g, cutoff)
 
 	#DELETE FALSE NODES (STATE=0) IN OBTAINED SoL_VC
 	for element in Sol_VC:
@@ -215,24 +195,17 @@ def main(inputfile, output_dir, cutoff, randSeed):
 	with open('.\Output\\' + inputfile.split('.')[0] + '_BnB_'+str(cutoff)+'.sol', 'w') as f:
 		f.write('%i\n' % (len(Sol_VC)))
 		f.write(','.join([str(x[0]) for x in Sol_VC]))
-
-	#WRITE TRACE FILES
-	with open('.\Output\\' + inputfile.split('.')[0] + '_BnB_'+str(cutoff)+'.trace', 'w') as f:
-	    for t in times:
-	        f.write('%.2f,%i\n' % ((t[1]),t[0]))
 			
 if __name__ == '__main__':
 	#create parser; example: python bnb.py --datafile ../Data/karate.graph --cutoff_time 200
 	parser=argparse.ArgumentParser(description='Input parser for BnB')
 	parser.add_argument('-inst',action='store',type=str,required=True,help='Inputgraph datafile')
 	parser.add_argument('-alg',action='store',default=1000,type=str,required=True,help='Name of algorithm')
-	parser.add_argument('-time',action='store',default=1000,type=int,required=True,help='Cutoff running time for algorithm')
 	parser.add_argument('-seed',action='store',default=1000,type=int,required=False,help='random seed')
 	args=parser.parse_args()
 
 	algorithm = args.alg
 	graph_file = args.inst
 	output_dir = 'Output/'
-	cutoff = args.time
 	randSeed = args.seed
-	main(graph_file, output_dir, cutoff, randSeed)
+	main(graph_file, output_dir, randSeed)
