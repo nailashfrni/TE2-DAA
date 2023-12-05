@@ -43,7 +43,7 @@ def generate_dataset_file(size_dp, size_bnb, size_str):
 if __name__ == '__main__':
      sizes = ['small', 'medium', 'large']
      dp_sizes = [10**4, 10**5, 10**6]
-     bnb_sizes = [100, 300, 900]
+     bnb_sizes = [60, 80, 100]
      
      for i in range(len(sizes)):
            generate_dataset_file(dp_sizes[i], bnb_sizes[i], sizes[i])

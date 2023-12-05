@@ -10,10 +10,10 @@ def parse(datafile, adj):
 		for i in range(num_vertices):
 			neighbors = list(map(int, f.readline().split()))
 			adj.append(neighbors)
-	return adj
+	return adj, num_vertices
 
 
-def compute_time_space(adj_dp, graph_bnb, size_dp, size_str):
+def compute_time_space(adj_dp, graph_bnb, size_dp, size_bnb, size_str):
 	print('--- ' + size_str.upper() + ' ---')
 	
     # Init tracer time and space
@@ -27,7 +27,7 @@ def compute_time_space(adj_dp, graph_bnb, size_dp, size_str):
 	end = time.time()
 	memory_usage = tracemalloc.get_traced_memory()[1] / 1000000
 	tracemalloc.stop()
-	print('1. DP')
+	print(f'=================================== DP {size_dp} vertices ===================================')
 	print('Output MVC:', mvc_dp, 'vertices')
 	print('Memory usage:', memory_usage, 'MB')
 	print('Running time:', (end-start) * 1000, 'ms')
@@ -43,7 +43,7 @@ def compute_time_space(adj_dp, graph_bnb, size_dp, size_str):
 	end = time.time()
 	memory_usage = tracemalloc.get_traced_memory()[1] / 1000000
 	tracemalloc.stop()
-	print('2. BnB')
+	print(f'================================= BnB {size_bnb} vertices ===================================')
 	print('Output MVC:', len(mvc_bnb), 'vertices')
 	print('Memory usage:', memory_usage, 'MB')
 	print('Running time:', (end-start) * 1000, 'ms\n')
@@ -51,16 +51,14 @@ def compute_time_space(adj_dp, graph_bnb, size_dp, size_str):
 
 if __name__ == '__main__':
 	sizes = ['small', 'medium', 'large']
-	dp_sizes = [10**4, 10**5, 10**6]
-	bnb_sizes = [100, 300, 900]
      
 	for i in range(len(sizes)):
 		adj_dp = [[]]
 		adj_bnb = []
 		
-		adj_dp = parse(f'dataset/dp/{sizes[i]}.txt', adj_dp)
-		adj_bnb = parse(f'dataset/bnb/{sizes[i]}.txt', adj_bnb)
+		adj_dp, dp_size = parse(f'dataset/dp/{sizes[i]}.txt', adj_dp)
+		adj_bnb, bnb_size = parse(f'dataset/bnb/{sizes[i]}.txt', adj_bnb)
 		
 		graph_bnb = create_graph(adj_bnb)
-		compute_time_space(adj_dp, graph_bnb, dp_sizes[i], sizes[i])
+		compute_time_space(adj_dp, graph_bnb, dp_size, bnb_size, sizes[i])
     

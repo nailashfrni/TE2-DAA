@@ -1,0 +1,29 @@
+--- SMALL ---
+=================================== DP 10000 vertices ===================================
+Output MVC: 4055 vertices
+Memory usage: 0.976106 MB
+Running time: 44.74925994873047 ms
+================================= BnB 60 vertices ===================================
+Output MVC: 24 vertices
+Memory usage: 0.071607 MB
+Running time: 95.73912620544434 ms
+
+--- MEDIUM ---
+=================================== DP 100000 vertices ===================================
+Output MVC: 40371 vertices
+Memory usage: 9.621784 MB
+Running time: 508.69274139404297 ms
+================================= BnB 80 vertices ===================================
+Output MVC: 36 vertices
+Memory usage: 0.084624 MB
+Running time: 3903.226613998413 ms
+
+--- LARGE ---
+=================================== DP 1000000 vertices ===================================
+Output MVC: 403750 vertices
+Memory usage: 96.549272 MB
+Running time: 5413.216352462769 ms
+================================= BnB 100 vertices ===================================
+Output MVC: 42 vertices
+Memory usage: 0.109392 MB
+Running time: 181036.65494918823 ms
